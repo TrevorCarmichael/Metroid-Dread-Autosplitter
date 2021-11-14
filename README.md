@@ -10,8 +10,10 @@ Please understand updates will be slow to this. I do work fulltime and like play
 
 ## How to use
 
-1. First, we'll need TesseractOCR. You can install that from here: 
-https://github.com/tesseract-ocr/tesseract/releases
+1. First, we'll need TesseractOCR. I installed this one: 
+https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v5.0.0-rc1.20211030.exe
+
+Tesseract github here: https://github.com/tesseract-ocr/tesseract/releases
 
 Theoretically I think any version should work, but use 5.0.0. Just install to default location. 
 
