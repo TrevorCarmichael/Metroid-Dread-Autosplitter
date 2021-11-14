@@ -31,7 +31,9 @@ Install this to OBS. You can start it by going to Tools -> VirtualCam -> Start. 
 
 7. Setup LiveSplit server (https://github.com/LiveSplit/LiveSplit.Server). This lets me send splits to livesplit. You'll need to add the 'LiveSplit Server' component to your layout in Livesplit, and then right click your splits and go to Control -> Start Server
 
-8. Start the program with 'python main.py' from the scr directory. 
+8. Make sure Livesplit is running and the server is active, and OBS is running with VirtualCam on! These must be started Before the script.
+
+9. Start the program with 'python main.py' from the scr directory. 
 
 If this seems like a lot of work for an autosplitter that's because it is. This kind of started as a Friday project when I had some free time and I didn't originally make it for anyone else to use. Mostly a free time project that went too far. My goal is to strip down some of these steps and make it more friendly but for now this is what I have lol
 
