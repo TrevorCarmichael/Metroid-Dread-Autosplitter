@@ -49,7 +49,7 @@ STARTING_X                  = 0\
 STARTING_Y                  = 0\
 ACTUAL_WIDTH                = 1920\
 ACTUAL_HEIGHT               = 1080\
-cam_number                  = 1\
+cam_number                  = 1
 
 ## Setting the route
 
@@ -73,7 +73,7 @@ The indexes here are in this order:
 5="Ferenia"\
 6="Elun"\
 7="Hanubia"\
-8="Itorash"\
+8="Itorash"
 
 0="Charge Beam"\
 1="Phantom Cloak"\
@@ -95,7 +95,7 @@ The indexes here are in this order:
 17="Cross Bomb"\
 18="Storm Missile"\
 19="Wave Beam"\
-20="Power Bomb"\
+20="Power Bomb"
 
 ## TODO
 
