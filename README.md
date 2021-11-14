@@ -6,7 +6,7 @@ At the moment I can only split on these actions. I've been trying to think of me
 
 Please understand updates will be slow to this. I do work fulltime and like playing vidyagames so during the week I probably won't spend much time working on this. If you're someone who knows python then I'd recommend someone smarter than me forking this and making it better, or just make your own idk. I'm not a professional I'm just a dude who mildly understands how to program sometimes
 
-** Note this doesn't START or STOP the timer. It only splits. You'll need to start on continue like normal, and stop at the ending cutscene! ** I don't intend on ever adding start/stop functionality at the moment. If the application messes up I'd like to not mess up someones time so manually starting and stopping I think is the best way to do that!
+**Note this doesn't START or STOP the timer. It only splits. You'll need to start on continue like normal, and stop at the ending cutscene!** I don't intend on ever adding start/stop functionality at the moment. If the application messes up I'd like to not mess up someones time so manually starting and stopping I think is the best way to do that!
 
 ## How to use
 
@@ -45,11 +45,11 @@ The first 4 settings get from your capture card in OBS. Right click the capture 
 
 The cam_number you just need to play with... if 1 doesn't show an image, try 0. If that doesn't work try 2. Unfortunately the package I use to interface with the cam doesn't have a way to like, check the name of the cam. You just gotta play with it. 
 
-STARTING_X                  = 0
-STARTING_Y                  = 0
-ACTUAL_WIDTH                = 1920
-ACTUAL_HEIGHT               = 1080
-cam_number                  = 1 
+STARTING_X                  = 0\
+STARTING_Y                  = 0\
+ACTUAL_WIDTH                = 1920\
+ACTUAL_HEIGHT               = 1080\
+cam_number                  = 1\
 
 ## Setting the route
 
@@ -57,45 +57,45 @@ variables.py contains a 'route' array. This is what determines the order that th
 
 A line starting with "u" is an upgrade. "l" is a location change. If we look at the first few lines here in mine: 
 
-["u", 0], <-- This is getting the Charge Beam upgrade
-["u", 1], <-- This is getting the Phantom Cloak upgrade
-["u", 2], <-- This is getting the Spider Magnet upgrade
-["l", 0, 1], <-- This is changing locations from Artaria to Cataris
-["l", 1, 2], <-- This is changing locations from Cataris to Dairon
+["u", 0], <-- This is getting the Charge Beam upgrade\
+["u", 1], <-- This is getting the Phantom Cloak upgrade\
+["u", 2], <-- This is getting the Spider Magnet upgrade\
+["l", 0, 1], <-- This is changing locations from Artaria to Cataris\
+["l", 1, 2], <-- This is changing locations from Cataris to Dairon\
 
 The indexes here are in this order: 
 
-0="Artaria"
-1="Cataris"
-2="Dairon"
-3="Burenia"
-4="Ghavoran"
-5="Ferenia"
-6="Elun"
-7="Hanubia"
-8="Itorash"
+0="Artaria"\
+1="Cataris"\
+2="Dairon"\
+3="Burenia"\
+4="Ghavoran"\
+5="Ferenia"\
+6="Elun"\
+7="Hanubia"\
+8="Itorash"\
 
-0="Charge Beam"
-1="Phantom Cloak"
-2="Spider Magnet"
-3="Wide Beam"
-4="Morph Ball"
-5="Varia Suit"
-6="Diffusion Beam"
-7="Grapple Beam"
-8="Bomb"
-9="Flash Shift"
-10="Speed Booster"
-11="Super Missile"
-12="Plasma Beam"
-13="Ice Missile"
-14="Space Jump"
-15="Screw Attack"
-16="Gravity Suit"
-17="Cross Bomb"
-18="Storm Missile"
-19="Wave Beam"
-20="Power Bomb"
+0="Charge Beam"\
+1="Phantom Cloak"\
+2="Spider Magnet"\
+3="Wide Beam"\
+4="Morph Ball"\
+5="Varia Suit"\
+6="Diffusion Beam"\
+7="Grapple Beam"\
+8="Bomb"\
+9="Flash Shift"\
+10="Speed Booster"\
+11="Super Missile"\
+12="Plasma Beam"\
+13="Ice Missile"\
+14="Space Jump"\
+15="Screw Attack"\
+16="Gravity Suit"\
+17="Cross Bomb"\
+18="Storm Missile"\
+19="Wave Beam"\
+20="Power Bomb"\
 
 ## TODO
 
