@@ -11,7 +11,7 @@ Please understand updates will be slow to this. I do work fulltime and like play
 ## How to use
 
 1. First, we'll need TesseractOCR. I installed this one: 
-https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v5.0.0-rc1.20211030.exe
+https://github.com/UB-Mannheim/tesseract/wiki
 
 Tesseract github here: https://github.com/tesseract-ocr/tesseract/releases
 
