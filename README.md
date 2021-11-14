@@ -6,6 +6,8 @@ At the moment I can only split on these actions. I've been trying to think of me
 
 Please understand updates will be slow to this. I do work fulltime and like playing vidyagames so during the week I probably won't spend much time working on this. If you're someone who knows python then I'd recommend someone smarter than me forking this and making it better, or just make your own idk. I'm not a professional I'm just a dude who mildly understands how to program sometimes
 
+** Note this doesn't START or STOP the timer. It only splits. You'll need to start on continue like normal, and stop at the ending cutscene! ** I don't intend on ever adding start/stop functionality at the moment. If the application messes up I'd like to not mess up someones time so manually starting and stopping I think is the best way to do that!
+
 ## How to use
 
 1. First, we'll need TesseractOCR. You can install that from here: 
