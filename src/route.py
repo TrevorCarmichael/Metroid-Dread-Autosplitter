@@ -31,3 +31,11 @@ class Route:
     def print_route(self):
         for i in range(0, len(self.route)):
             print(self.get_split_text(i))
+
+    def set_route_position(self, i):
+        if i < len(self.route) and i >= 0:
+            self.route_pos = i
+        elif i > len(self.route):
+            self.route_pos = len(self.route)
+        elif i <= 0: 
+            self.route_pos = 0
