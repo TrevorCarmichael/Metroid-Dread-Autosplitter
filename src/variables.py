@@ -59,3 +59,9 @@ route = [
     ["u", 19],
     ["u", 20]
 ]
+
+item_types = [
+    "Missile Tank",
+    "Missile+ Tank", 
+    "Energy Tank"
+]

@@ -16,11 +16,11 @@ class Route:
     def get_split_text(self, i):
         split = self.route[i]
         if split[0] == "u":
-            return variables.upgrades[split[1]]
+            return "Next: %s" % variables.upgrades[split[1]]
         elif split[0] == "l":
             before = variables.locations[split[1]]
             after = variables.locations[split[2]]
-            return "Transport from %s to %s" % (before, after)
+            return "Next: Transport from %s to %s" % (before, after)
 
     def print_current_split(self):
         if self.is_complete():

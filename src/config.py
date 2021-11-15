@@ -23,3 +23,6 @@ livesplit_port = 16834
 #idk don't touch this lol
 capture_frame_width  = 1920
 capture_frame_height = 1080
+
+debug = False
+debug_path = "F:/Projects/Autosplitter_Metroid_Dread/Metroid-Dread-Autosplitter/src/debug_images"

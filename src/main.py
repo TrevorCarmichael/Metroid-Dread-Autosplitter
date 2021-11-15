@@ -3,6 +3,7 @@ import numpy as np
 import pytesseract
 import variables
 import config
+from time import sleep
 from PIL import Image
 from coordinates import Coordinates
 from route import Route
@@ -17,6 +18,7 @@ ls.connect()
 
 locations           = variables.locations
 upgrades            = variables.upgrades
+items               = variables.item_types
 route               = variables.route
 SCALE               = config.ACTUAL_WIDTH / 1920
 item_coords         = Coordinates(410,410,1500,670,config.STARTING_X, config.STARTING_Y, SCALE)
@@ -24,6 +26,14 @@ location_coords     = Coordinates(656,40,1263,130,config.STARTING_X, config.STAR
 decay_value         = 10
 cooldown_length     = 200
 route               = Route(variables.route)
+debug               = config.debug
+
+def save_frame(frame, name):
+    if debug:
+        image_orig = Image.fromarray(frame)
+        image_gray = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
+        image_orig.save("%s/%s_orig.png" % (debug_path, name), "PNG")
+        image_gray.save("%s/%s_gray.png" % (debug_path, name), "PNG")
 
 def get_text_from_frame(frame, coord, thresh):
     crop   = cv2.cvtColor(frame[coord.y:coord.y+coord.h, coord.x:coord.x+coord.w], cv2.COLOR_BGR2GRAY)
@@ -32,9 +42,9 @@ def get_text_from_frame(frame, coord, thresh):
 
 def main():
 
-    item_cooldown       = 0
-    location_cooldown   = 0
-    current_location    = locations[0]
+    item_cooldown = 0
+    current_location = locations[0]
+    item_count = 0
 
     print("Metroid Dread Autosplit")
     print("-----------------------")
@@ -55,11 +65,16 @@ def main():
     
     cv2.rectangle(frame, (item_coords.x, item_coords.y),(item_coords.x2, item_coords.y2),(0,255,0))
     cv2.rectangle(frame, (location_coords.x, location_coords.y),(location_coords.x2, location_coords.y2),(0,255,0))
+
     image = Image.fromarray(frame)
+
+    if debug:
+        save_frame(frame, "Startup")
+
     image.show()
 
     while True:
-
+    
         ret, frame = cap.read()
 
         if not ret:
@@ -72,47 +87,39 @@ def main():
             upgrade_ocr     = get_text_from_frame(frame, item_coords,       config.threshold_value_items)
             current_split   = route.get_current_split()
 
-            if current_split[0] == "u":
+            if (current_split[0] == "u" and upgrades[current_split[1]] in upgrade_ocr):
                 upg = upgrades[current_split[1]]
-                
-                if upg in upgrade_ocr:
-                    print("%s split found at %s" % (upg, ls.get_current_time()))
-                    ls.send_split()
-                    route.progress_route()
-                    route.print_current_split()
+                print("%s split found at %s" % (upg, ls.get_current_time()))
+                save_frame(frame, upg)
+                ls.send_split()
+                route.progress_route()
+                route.print_current_split()
                     
             elif current_split[0] == "l":
                 split_location_before   = current_split[1]
                 split_location_after    = current_split[2]
 
-            #good lord fix this 'if' salad
-            if any(loc.upper() in location_ocr for loc in locations):
-                for loc in locations:
-                    if loc.upper() in location_ocr:
-                        if loc != current_location and location_cooldown == 0:
-                            if current_split[0] == "l":
-                                if current_location == locations[split_location_before] and loc == locations[split_location_after]:
-                                    print("%s to %s split found at %s" % (locations[split_location_before], locations[split_location_after], ls.get_current_time()))
-                                    ls.send_split()
-                                    route.progress_route()
-                                    route.print_current_split()
-                            else:
-                                print("Detected location change from %s to %s." % (current_location, loc))
+            for loc in locations:
+                if loc.upper() in location_ocr and loc != current_location:
+                    if current_split[0] == "l" and current_location == locations[split_location_before] and loc == locations[split_location_after]:
+                        print("%s to %s split found at %s" % (locations[split_location_before], locations[split_location_after], ls.get_current_time()))
+                        ls.send_split()
+                        route.progress_route()
+                        route.print_current_split()
+                        save_frame(frame, "%s to %s" % (locations[split_location_before], locations[split_location_after]))
+                    else:
+                        print("Detected location change from %s to %s at %s" % (current_location, loc, ls.get_current_time()))
+                        save_frame(frame, "%s to %s" % (current_location, loc))
 
-                            current_location  = loc
-                            location_cooldown = cooldown_length
-            
-            if "Missile Tank" in upgrade_ocr and item_cooldown == 0:
-                print("Collected Missile Tank in %s at %s" % (current_location,ls.get_current_time()))
-                item_cooldown = cooldown_length
-            elif "Missile+ Tank" in upgrade_ocr and item_cooldown == 0:
-                print("Collected Missile+ Tank in %s at %s" % (current_location,ls.get_current_time()))
-                item_cooldown = cooldown_length
-            elif "Energy Tank" in upgrade_ocr and item_cooldown == 0:
-                print("Collected Energy Tank in %s at %s" % (current_location,ls.get_current_time()))
-                item_cooldown = cooldown_length
+                    current_location  = loc
 
-            item_cooldown       = item_cooldown     - decay_value if item_cooldown      > 0 else 0
-            location_cooldown   = location_cooldown - decay_value if location_cooldown  > 0 else 0
+            if item_cooldown == 0 and any(item in upgrade_ocr for item in items):
+                for item in items:
+                    if item in upgrade_ocr:
+                        print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
+                        item_cooldown = cooldown_length
+                        save_frame(frame, "%s_%s_%s" % (item, current_location, item_count))
+                        item_count += 1
 
+            item_cooldown = item_cooldown - decay_value if item_cooldown > 0 else 0
 main()
