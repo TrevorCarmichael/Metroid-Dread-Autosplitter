@@ -30,7 +30,7 @@ debug               = config.debug
 
 def save_frame(frame, name):
     if debug:
-        image_orig = Image.fromarray(frame)
+        image_orig = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         image_gray = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
         image_orig.save("%s/%s_orig.png" % (debug_path, name), "PNG")
         image_gray.save("%s/%s_gray.png" % (debug_path, name), "PNG")
