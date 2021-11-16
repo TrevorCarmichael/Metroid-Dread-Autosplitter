@@ -115,3 +115,4 @@ dmypy.json
 .vscode/settings.json
 *.png
 src/testing.py
+src/testing_autostart.py

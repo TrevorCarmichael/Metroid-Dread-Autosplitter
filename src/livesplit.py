@@ -6,6 +6,7 @@ class LivesplitServer():
         self.server = server
         self.port = port
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
     def connect(self):
         try:
             self.s.connect((config.livesplit_server, config.livesplit_port))
@@ -19,3 +20,6 @@ class LivesplitServer():
     
     def send_split(self):
         self.s.send(b"split\r\n")
+
+    def start_timer(self):
+        self.s.send(b"starttimer\r\n")

@@ -1,6 +1,4 @@
-import cv2
 import numpy as np
-import pytesseract
 import variables
 import config
 from time import sleep
@@ -8,10 +6,9 @@ from PIL import Image
 from coordinates import Coordinates
 from route import Route
 from livesplit import LivesplitServer
+from capture import Capture
 
-cap = cv2.VideoCapture(config.cam_number)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH,  config.capture_frame_width)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.capture_frame_height)
+cap = Capture(config.cam_number, config.capture_frame_width, config.capture_frame_height)
 
 ls = LivesplitServer(config.livesplit_server, config.livesplit_port)
 ls.connect()
@@ -23,28 +20,31 @@ route               = variables.route
 SCALE               = config.ACTUAL_WIDTH / 1920
 item_coords         = Coordinates(410,410,1500,670,config.STARTING_X, config.STARTING_Y, SCALE)
 location_coords     = Coordinates(656,40,1263,130,config.STARTING_X, config.STARTING_Y, SCALE)
+menu_coords = [
+    Coordinates(392, 462, 1533, 507, config.STARTING_X, config.STARTING_Y, SCALE),
+    Coordinates(392, 605, 1533, 650, config.STARTING_X, config.STARTING_Y, SCALE),
+    Coordinates(392, 749, 1533, 794, config.STARTING_X, config.STARTING_Y, SCALE)]
 decay_value         = 10
 cooldown_length     = 200
 route               = Route(variables.route)
 debug               = config.debug
 
-def save_frame(frame, name):
-    if debug:
-        image_orig = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        image_gray = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
-        image_orig.save("%s/%s_orig.png" % (debug_path, name), "PNG")
-        image_gray.save("%s/%s_gray.png" % (debug_path, name), "PNG")
+menu_1 = []
+menu_2 = []
+menu_3 = []
 
-def get_text_from_frame(frame, coord, thresh):
-    crop   = cv2.cvtColor(frame[coord.y:coord.y+coord.h, coord.x:coord.x+coord.w], cv2.COLOR_BGR2GRAY)
-    image  = Image.fromarray(crop).point(lambda p: p > thresh and 255)
-    return pytesseract.image_to_string(image)
-
+def array_distance(arr1, arr2, num):
+    if (arr1[0] < arr2[0] + num) and (arr1[0] > arr2[0] - num) and (arr1[1] < arr2[1] + num) and (arr1[1] > arr2[1] - num) and (arr1[2] < arr2[2] + num) and (arr1[2] > arr2[2] - num):
+            return True
+    else: 
+        return False
 def main():
 
     item_cooldown = 0
     current_location = locations[0]
     item_count = 0
+    started = False
+    averages = []
 
     print("Metroid Dread Autosplit")
     print("-----------------------")
@@ -57,23 +57,39 @@ def main():
     print("")
     print("Starting Route watch...")
     print("First split is %s" % route.get_split_text(0))
-
-    ret, frame = cap.read()
-
     print('Showing image from capture. If you don\'t see Metroid here then make sure that VirtualCam is started in OBS. If it is, try changing the cam_number variable until you see something here...')
     print('Green boxes show where we\'re watching for info. This should be roughly where the text when receiving an upgrade and taking transports appears. If it isn\'t right then check the X/Y/Width/Height values in config.')
-    
-    cv2.rectangle(frame, (item_coords.x, item_coords.y),(item_coords.x2, item_coords.y2),(0,255,0))
-    cv2.rectangle(frame, (location_coords.x, location_coords.y),(location_coords.x2, location_coords.y2),(0,255,0))
 
-    image = Image.fromarray(frame)
-
-    if debug:
-        save_frame(frame, "Startup")
-
+    image = cap.draw_capture_zones(item_coords, location_coords)
     image.show()
 
-    while True:
+    if debug: cap.save_frame("Startup")
+
+    user_input = input("Start timer automatically? (Y/N) \nIf not automatic, start LiveSplit like normal.")
+
+    if user_input == 'Y':
+        user_input = input("Get game to the game file and hover over continue, then press Enter to calibrate.")
+        ret, frame = cap.read()
+        menu_1 = cap.get_average_color_from_frame(frame, menu_coords[0])
+        menu_2 = cap.get_average_color_from_frame(frame, menu_coords[1])
+        menu_3 = cap.get_average_color_from_frame(frame, menu_coords[2])
+        print(menu_2)
+        print(menu_3)
+
+    while not started:
+        ret, frame = cap.read()
+        averages = [
+            cap.get_average_color_from_frame(frame, menu_coords[0]),
+            cap.get_average_color_from_frame(frame, menu_coords[1]),
+            cap.get_average_color_from_frame(frame, menu_coords[2])
+        ]
+        print(averages)
+        if array_distance(averages[1],menu_2,2) and array_distance(averages[2],menu_3,2) and averages[0][0] > menu_1[0]+30:
+            started = True
+            ls.start_timer()
+            print("Started Timer!")
+
+    while started:
     
         ret, frame = cap.read()
 
@@ -83,14 +99,14 @@ def main():
         
         if not route.is_complete():
 
-            location_ocr    = get_text_from_frame(frame, location_coords,   config.threshold_value_locations)
-            upgrade_ocr     = get_text_from_frame(frame, item_coords,       config.threshold_value_items)
+            location_ocr    = cap.get_text_from_frame(frame, location_coords,   config.threshold_value_locations)
+            upgrade_ocr     = cap.get_text_from_frame(frame, item_coords,       config.threshold_value_items)
             current_split   = route.get_current_split()
 
             if (current_split[0] == "u" and upgrades[current_split[1]] in upgrade_ocr):
                 upg = upgrades[current_split[1]]
                 print("%s split found at %s" % (upg, ls.get_current_time()))
-                save_frame(frame, upg)
+                if debug: save_frame(frame, upg)
                 ls.send_split()
                 route.progress_route()
                 route.print_current_split()
@@ -106,10 +122,10 @@ def main():
                         ls.send_split()
                         route.progress_route()
                         route.print_current_split()
-                        save_frame(frame, "%s to %s" % (locations[split_location_before], locations[split_location_after]))
+                        if debug: save_frame(frame, "%s to %s" % (locations[split_location_before], locations[split_location_after]))
                     else:
                         print("Detected location change from %s to %s at %s" % (current_location, loc, ls.get_current_time()))
-                        save_frame(frame, "%s to %s" % (current_location, loc))
+                        if debug: save_frame(frame, "%s to %s" % (current_location, loc))
 
                     current_location  = loc
 
@@ -118,7 +134,7 @@ def main():
                     if item in upgrade_ocr:
                         print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
                         item_cooldown = cooldown_length
-                        save_frame(frame, "%s_%s_%s" % (item, current_location, item_count))
+                        if debug: save_frame(frame, "%s_%s_%s" % (item, current_location, item_count))
                         item_count += 1
 
             item_cooldown = item_cooldown - decay_value if item_cooldown > 0 else 0

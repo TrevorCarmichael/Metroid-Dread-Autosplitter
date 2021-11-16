@@ -10,7 +10,7 @@ STARTING_X                  = 0
 STARTING_Y                  = 0
 ACTUAL_WIDTH                = 1920
 ACTUAL_HEIGHT               = 1080
-cam_number                  = 1 #You may need to fiddle with this. Usually will be 0 or 1. 
+cam_number                  = 0 #You may need to fiddle with this. Usually will be 0 or 1. 
 
 #Probably don't change these
 threshold_value_items       = 120 # 120 seems to work in almost every case I've found
