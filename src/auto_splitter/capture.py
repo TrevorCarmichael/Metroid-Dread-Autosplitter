@@ -26,13 +26,13 @@ class Capture():
             image_orig.save("%s/%s_orig.png" % (debug_path, name), "PNG")
             image_gray.save("%s/%s_gray.png" % (debug_path, name), "PNG")
 
-    def draw_capture_zones(self, zone1, zone2):
+    def draw_capture_zones(self, *args):
             ret, frame = self.cap.read()
             if ret: 
-                cv2.rectangle(frame, (zone1.x, zone1.y),(zone1.x2, zone1.y2),(0,255,0))
-                cv2.rectangle(frame, (zone2.x, zone2.y),(zone2.x2, zone2.y2),(0,255,0))
+                for i in args:
+                    cv2.rectangle(frame, (i.x, i.y),(i.x2, i.y2),(0,255,0))
 
-            return Image.fromarray(frame)
+            return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
     def get_average_color(self, zone):
         ret, frame = self.cap.read()

@@ -1,3 +1,5 @@
+from auto_splitter.coordinates import Coordinates
+
 locations = [
     "Artaria",
     "Cataris",
@@ -34,34 +36,19 @@ upgrades = [
     "Power Bomb"
 ]
 
-route = [
-    ["u", 0],
-    ["u", 1],
-    ["u", 2],
-    ["l", 0, 1],
-    ["l", 1, 2],
-    ["u", 3],
-    ["u", 4],
-    ["u", 5],
-    ["u", 6],
-    ["u", 7],
-    ["u", 8],
-    ["u", 9],
-    ["u", 10],
-    ["u", 11],
-    ["u", 12],
-    ["u", 13],
-    ["u", 14],
-    ["u", 15],
-    ["u", 16],
-    ["u", 17],
-    ["u", 18],
-    ["u", 19],
-    ["u", 20]
-]
-
 item_types = [
     "Missile Tank",
     "Missile+ Tank", 
     "Energy Tank"
 ]
+
+def get_coordinates(x, y, scale):
+
+    item_coords         = Coordinates(410,410,1500,670,x, y, scale)
+    location_coords     = Coordinates(656,40,1263,130,x, y, scale)
+    menu_coords = [
+        Coordinates(392, 462, 1533, 507, x, y, scale),
+        Coordinates(392, 605, 1533, 650, x, y, scale),
+        Coordinates(392, 749, 1533, 794, x, y, scale)]
+
+    return item_coords, location_coords, menu_coords

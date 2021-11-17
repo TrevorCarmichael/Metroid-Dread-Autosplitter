@@ -1,4 +1,4 @@
-import variables
+import auto_splitter.variables as variables
 class Route:
     def __init__(self, route): 
         self.route = route
@@ -16,17 +16,17 @@ class Route:
     def get_split_text(self, i):
         split = self.route[i]
         if split[0] == "u":
-            return "Next: %s" % variables.upgrades[split[1]]
+            return "%s" % variables.upgrades[split[1]]
         elif split[0] == "l":
             before = variables.locations[split[1]]
             after = variables.locations[split[2]]
-            return "Next: Transport from %s to %s" % (before, after)
+            return "Transport from %s to %s" % (before, after)
 
     def print_current_split(self):
         if self.is_complete():
-            print("Autosplit is complete!")
+            return "Autosplit is complete!"
         else:
-            print(self.get_split_text(self.route_pos))
+            return self.get_split_text(self.route_pos)
 
     def print_route(self):
         for i in range(0, len(self.route)):
