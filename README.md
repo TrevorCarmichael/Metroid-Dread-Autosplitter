@@ -4,7 +4,7 @@ A simple auto split program in Python. This uses OCR to read parts of the screen
 
 At the moment I can only split on these actions. I've been trying to think of methods to split in other spots but that's tricky and this was easy. 
 
-Please understand updates will be slow to this. I do work fulltime and like playing vidyagames so during the week I probably won't spend much time working on this. If you're someone who knows python then I'd recommend someone smarter than me forking this and making it better, or just make your own idk. I'm not a professional I'm just a dude who mildly understands how to program sometimes. This project was really just a 'proof of concept' I made that I guess might mature eventually. 
+Please understand updates will be slow to this. I do work fulltime and like playing vidyagames so during the week I probably won't spend much time working on this. If you're someone who knows python then I'd recommend someone smarter than me forking this and making it better, or just make your own idk. This project was really just a 'proof of concept' I made that I guess might mature eventually. 
 
 **Note this doesn't STOP the timer. It only splits. You'll need to stop at the ending cutscene manually!** I don't intend on ever adding stop functionality at the moment. If the application messes up I'd like to not mess up someones time so manually stopping I think is the best way to do that!
 
