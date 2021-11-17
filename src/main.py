@@ -15,8 +15,24 @@ from auto_splitter.route import Route
 import auto_splitter.variables as variables
 from time import sleep
 
-with open('data.json', 'r') as f:
-    config = json.load(f)
+try: 
+    with open('data.json', 'r') as f:
+        config = json.load(f)
+except:
+    config = {
+            "x": 0, 
+            "y": 0,
+            "w": 1920, 
+            "h": 1080,
+            "c": 0,
+            "ls_server": "localhost",
+            "ls_port": 16834,
+            "route": [],
+            "calib_1": [],
+            "calib_2": [],
+            "calib_3": []
+        }
+
 
 livesplit_server = config['ls_server']
 livesplit_port = int(config['ls_port'])
@@ -163,6 +179,8 @@ def autosplit_thread(started=False):
         if not ret: 
             print("No video from camera!")
 
+    cap.close()
+
 ## UI LOOP BELOW
 while True:
     event, values = window.read()
@@ -221,6 +239,8 @@ while True:
                 window['-CAMTEXT-'].update('Camera connected!', text_color='green')
         except: 
                 window['-CAMTEXT-'].update('Something went wrong!', text_color='red')
+
+        cap.close()
 
     if event == '-STARTBUTTON-':
         if running == True:

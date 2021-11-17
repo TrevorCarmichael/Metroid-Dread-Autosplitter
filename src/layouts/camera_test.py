@@ -31,6 +31,8 @@ def window(x,y,w,h):
                 image = image.resize((int(1920/4), int(1080/4)), resample=Image.BICUBIC)
                 view_image = ImageTk.PhotoImage(image)
                 window['-IMAGE-'].update(data=view_image)
+                
+            cap.close()
 
         if event == 'Ok':
             c = values['-CAM_NUM-']

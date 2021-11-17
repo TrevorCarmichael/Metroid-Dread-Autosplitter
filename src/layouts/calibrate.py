@@ -16,6 +16,7 @@ def window(calib_1 = [], calib_2 = [], calib_3 = [], x = 0, y = 0, scale = 1, c=
         event, values = window.read()
 
         if (event in (sg.WIN_CLOSED, "Quit")):
+            cap.close()
             return calib_1, calib_2, calib_3
             break
 
@@ -26,7 +27,9 @@ def window(calib_1 = [], calib_2 = [], calib_3 = [], x = 0, y = 0, scale = 1, c=
                 calib_2 = cap.get_average_color_from_frame(frame, menu_coords[1])
                 calib_3 = cap.get_average_color_from_frame(frame, menu_coords[2])
                 window.close()
+                cap.close()
                 return calib_1, calib_2, calib_3
 
     window.close()
+    cap.close()
     return calib_1, calib_2, calib_3

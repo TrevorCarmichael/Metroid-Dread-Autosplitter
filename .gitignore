@@ -120,5 +120,5 @@ src/old_main.py
 src/ui_layouts.py
 tests/route_test.py
 tests/variables_test.py
-tests/route_test.py
-tests/route_test.py
+data.json
+*.json
