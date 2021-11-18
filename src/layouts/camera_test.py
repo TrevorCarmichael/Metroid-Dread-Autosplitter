@@ -5,9 +5,9 @@ from auto_splitter.capture import Capture
 from auto_splitter.variables import get_coordinates
 from auto_splitter.coordinates import Coordinates
 
-def window(x,y,w,h):
+def window(x,y,w,h,c):
     
-    camera_test = [[sg.Text('Cam Number'), sg.In(default_text='0', key="-CAM_NUM-",size=(2, 1), ), sg.Button('Update')],
+    camera_test = [[sg.Text('Cam Number'), sg.In(default_text=c, key="-CAM_NUM-",size=(2, 1), ), sg.Button('Update')],
                    [sg.Image(key='-IMAGE-', size=(1920/4, 1080/4))],
                    [sg.Button('Ok')]]
 
@@ -18,6 +18,7 @@ def window(x,y,w,h):
 
     while True:
         event, values = window.read()
+
         if event in (sg.WIN_CLOSED, "Quit"):
             return c
             break

@@ -115,7 +115,7 @@ def autosplit_thread(started=False):
             
             if array_distance(averages[1],calib_2,4) and array_distance(averages[2],calib_3,4):
                 window['-STAT1-'].update('Detected file menu', text_color='green')
-                if averages[0][0] > calib_1[0]+30:
+                if averages[0][0] > calib_1[0]+20:
                     started = True
                     ls.start_timer()
                     print("Started Timer!")

@@ -14,7 +14,7 @@ Please understand updates will be slow to this. I do work fulltime and like play
 
 2. Install OBS & OBS-VirtualCam: https://obsproject.com/forum/resources/obs-virtualcam.949/. Start it by going to Tools -> VirtualCam -> Start. Maybe set to Auto-start so you don't gotta do this every time. 
 
-3. Python: https://www.python.org/downloads/. I built this using Python 3.9 but 3.10 should work just fine. 
+3. Python: https://www.python.org/downloads/. I built this using Python 3.9 but 3.10 should work just fine. When installing, make sure you select 'Add Python to PATH'.  
 
 4. Livesplit Server: https://github.com/LiveSplit/LiveSplit.Server. In LS add the 'LiveSplit Server' component to your layout in Livesplit, and then right click your splits and go to Control -> Start Server.
 

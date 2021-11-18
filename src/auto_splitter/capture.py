@@ -16,7 +16,14 @@ class Capture():
     def get_text_from_frame(self, frame, coord, thresh):
         crop   = cv2.cvtColor(frame[coord.y:coord.y+coord.h, coord.x:coord.x+coord.w], cv2.COLOR_BGR2GRAY)
         image  = Image.fromarray(crop).point(lambda p: p > thresh and 255)
-        return pytesseract.image_to_string(image)
+        try: 
+            txt = pytesseract.image_to_string(image)
+            return txt
+        except: 
+            print('Trying default Tesseract install directory...')
+            pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+            txt = pytesseract.image_to_string(image)
+            return txt
 
     def save_frame(name):
         ret, frame = self.cap.read()
@@ -47,4 +54,5 @@ class Capture():
         return [round(average[0]), round(average[1]), round(average[2])]
 
     def close(self):
+        print('releasing...')
         self.cap.release()

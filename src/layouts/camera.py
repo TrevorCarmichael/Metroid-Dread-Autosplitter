@@ -22,7 +22,7 @@ def window(x=0, y=0, w=1920, h=1080, c=0):
 
         if event == 'Set Cam Number':
             x, y, w, h = int(values['-X-']), int(values['-Y-']), int(values['-W-']), int(values['-H-'])
-            c = camera_test_layout.window(x,y,w,h)
+            c = int(camera_test_layout.window(x,y,w,h,c))
 
         if event == 'Ok':
             x, y, w, h = int(values['-X-']), int(values['-Y-']), int(values['-W-']), int(values['-H-'])

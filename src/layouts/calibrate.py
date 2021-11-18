@@ -5,7 +5,6 @@ from auto_splitter.coordinates import Coordinates
 
 def window(calib_1 = [], calib_2 = [], calib_3 = [], x = 0, y = 0, scale = 1, c=0):
     _, _, menu_coords = variables.get_coordinates(x,y,scale)
-    cap = Capture(c, 1920, 1080)
     calibrate_layout = [[sg.Text('After making sure camera configuration works, navigate to a')],
                         [sg.Text('file menu and hover on \'Continue\'. Then press the button below.')],
                         [sg.Button('Calibrate')]]
@@ -21,7 +20,10 @@ def window(calib_1 = [], calib_2 = [], calib_3 = [], x = 0, y = 0, scale = 1, c=
             break
 
         if event == "Calibrate":
+            print(c)
+            cap = Capture(c, 1920, 1080)
             ret, frame = cap.read()
+            print(ret)
             if ret:
                 calib_1 = cap.get_average_color_from_frame(frame, menu_coords[0])
                 calib_2 = cap.get_average_color_from_frame(frame, menu_coords[1])
@@ -29,6 +31,7 @@ def window(calib_1 = [], calib_2 = [], calib_3 = [], x = 0, y = 0, scale = 1, c=
                 window.close()
                 cap.close()
                 return calib_1, calib_2, calib_3
+            cap.close()
 
     window.close()
     cap.close()
