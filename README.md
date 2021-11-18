@@ -36,3 +36,6 @@ Video on this coming later...
 2. Fuzzy text searching. The OCR is pretty accurate like 99% of the time, but sometimes it will mis-interpret a character. I think using a text-distance to check if it's 95% similar would help these situations. Right now it's only exact matching. 
 3. Reduce the amount of manual setup
 4. lots of other stuff idk
+5. I may have an idea for a load remover. I can't make any promises it will work but if I can't make it work, maybe someone else can probably do it better. I'll give it a shot ho.
+
+Pls report any bugs in the issues tab or feel free to leave any feature requests. I know there's a lot to add but right now i just kind of add stuff as I need it 

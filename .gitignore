@@ -122,3 +122,4 @@ tests/route_test.py
 tests/variables_test.py
 data.json
 *.json
+data.json
