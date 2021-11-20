@@ -147,7 +147,7 @@ class AutoSplitter():
                     ]
                     if self.array_distance(averages[1], menu_trigger_values[1], self.trigger_distance) and self.array_distance(averages[2], menu_trigger_values[2], self.trigger_distance):
                         self.window['-STAT4-'].update('Detecting: File menu')
-                        if averages[0][0] > menu_trigger_values[0][0] + 20:
+                        if averages[0][0] > menu_trigger_values[0][0] + 15:
                             print("Detected file start! Starting RTA timer...")
                             ls.start_timer()
                             running = True
