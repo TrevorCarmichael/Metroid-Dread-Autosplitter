@@ -30,4 +30,16 @@ class LivesplitServer():
         self.s.send(b"split\r\n")
 
     def start_timer(self):
+        self.s.send(b"initgametime\r\n")
         self.s.send(b"starttimer\r\n")
+        self.stop_game_timer()
+        self.s.send(b"setgametime 0\r\n")
+        
+    
+    def start_game_timer(self):
+        print("Unpausing game timer at %s" % (self.get_current_time()))
+        self.s.send(b"unpausegametime\r\n")
+
+    def stop_game_timer(self):
+        print("Pausing game timer at %s" % (self.get_current_time()))
+        self.s.send(b"pausegametime\r\n")

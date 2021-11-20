@@ -48,7 +48,8 @@ class Capture():
             average = img.mean(axis=0).mean(axis=0)
             return average
     
-    def get_average_color_from_frame(self, frame, zone):
+    @staticmethod
+    def get_average_color_from_frame(frame, zone):
         img = cv2.cvtColor(frame[zone.y:zone.y+zone.h, zone.x:zone.x+zone.w], cv2.COLOR_BGR2RGB)
         average = img.mean(axis=0).mean(axis=0)
         return [round(average[0]), round(average[1]), round(average[2])]

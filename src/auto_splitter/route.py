@@ -5,7 +5,10 @@ class Route:
         self.route_pos = 0
 
     def get_current_split(self):
-        return self.route[self.route_pos]
+        if not self.is_complete():
+            return self.route[self.route_pos]
+        else: 
+            return "Route complete"
 
     def progress_route(self):
         self.route_pos += 1
