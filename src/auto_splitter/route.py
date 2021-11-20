@@ -17,13 +17,16 @@ class Route:
         return True if self.route_pos == len(self.route) else False
 
     def get_split_text(self, i):
-        split = self.route[i]
-        if split[0] == "u":
-            return "%s" % variables.upgrades[split[1]]
-        elif split[0] == "l":
-            before = variables.locations[split[1]]
-            after = variables.locations[split[2]]
-            return "Transport from %s to %s" % (before, after)
+        if i <= len(self.route):
+            split = self.route[i]
+            if split[0] == "u":
+                return "%s" % variables.upgrades[split[1]]
+            elif split[0] == "l":
+                before = variables.locations[split[1]]
+                after = variables.locations[split[2]]
+                return "Transport from %s to %s" % (before, after)
+        else:
+            return "Autosplit is complete!"
 
     def print_current_split(self):
         if self.is_complete():

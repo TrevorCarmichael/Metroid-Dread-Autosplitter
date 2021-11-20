@@ -80,7 +80,7 @@ class AutoSplitter():
 
         locations, upgrades, items = variables.locations, variables.upgrades, variables.item_types
         
-        whole_screen_trigger = Coordinates(0, 0, 1920, 1080, x, y, scale) #If < 10, true
+        whole_screen_trigger = Coordinates(0, 0, 1920, 1080, x, y, scale)
 
         location_triggers = [
             Coordinates(50,50,550,250,x,y,scale),
@@ -105,6 +105,7 @@ class AutoSplitter():
         current_location = locations[0]
 
         item_cooldown = 0
+        upgrade_cooldown = 0
         item_count = 0
         split_location_before, split_location_after = 0, 0
 
@@ -125,6 +126,8 @@ class AutoSplitter():
 
         print("Note: Game time in the first 10 seconds may appear wrong. It will reset before the initial load finishes!")
         watch_for_end_frame = False
+
+        ls_index_sync_time = 0
 
         while self.watching:
             ret, frame = cap.read()
@@ -186,7 +189,6 @@ class AutoSplitter():
                     else: 
                         current_split = route.get_current_split()
                         loc_colors = self.average_colors(frame, location_triggers)
-                        #escape_colors = cap.get_average_color_from_frame(frame, location_coords)
 
                         if timer_stage == 2: 
                             timer_stage = 3
@@ -236,22 +238,46 @@ class AutoSplitter():
                                     route.progress_route()
                                     self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split())
 
-                                elif item_cooldown <= 0:
-                                    for item in items:
-                                        if item in upgrade_ocr:
-                                            print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
-                                            item_cooldown = 10
-                                            item_count += 1
-                                            self.window['-STAT2-'].update('Items Collected: %s' % item_count, text_color='green')
+                                else:
+                                    if item_cooldown <= 0:
+                                        for item in items:
+                                            if item in upgrade_ocr:
+                                                print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
+                                                item_cooldown = 10
+                                                item_count += 1
+                                                self.window['-STAT2-'].update('Items Collected: %s' % item_count, text_color='green')
+                                    if upgrade_cooldown <= 0:
+                                        for upg in upgrades:
+                                            if upg in upgrade_ocr:
+                                                print("Found %s at %s" % (upg, ls.get_current_time()))
+                                                upgrade_cooldown = 10
 
 
                             else: 
                                 self.window['-STAT4-'].update('Game playing...')
                             
-                        self.window['-STAT6-'].update('Route Complete: %s Timer_stage: %s' % (route.is_complete(), timer_stage))
+                        self.window['-STAT6-'].update('Route Complete: %s, Timer_stage: %s' % (route.is_complete(), timer_stage))
+
+                        #TIMEKEEPING LOGIC BELOW
                         end_time = time.time()
                         diff =  (end_time - last_time)
+
+                        #Sync with Livesplit index every 10 seconds
+                        if not self.load_remover_only:
+                            ls_index_sync_time += diff
+                            if ls_index_sync_time > 10: 
+                                ls_index = ls.get_current_index()
+                                if ls_index != route.route_pos:
+                                    print("Skipping to split %s" % route.get_split_text(ls_index))
+                                    route.set_route_position(ls_index)
+                                ls_index_sync_time = 0
+
+                        #Once an item/upgrade is collected, don't check for 10 more seconds
+                        #Prevents duplicate readings....
                         if item_cooldown > 0:
                             item_cooldown -=  diff
+                        if upgrade_cooldown > 0:
+                            upgrade_cooldown -= diff
+
                         self.window['-STAT5-'].update('Processing %s FPS' % round(1 / diff))
                         last_time = end_time

@@ -20,7 +20,11 @@ class LivesplitServer():
     def get_current_time(self):
         self.s.send(b"getcurrenttime\r\n")
         return self.s.recv(1024).decode().strip()
-    
+        
+    def get_current_index(self):
+        self.s.send(b"getsplitindex\r\n")
+        return int(self.s.recv(1024).decode().strip())
+
     def set_server(self, server):
         self.server = server
 
