@@ -22,7 +22,7 @@ Please understand updates will be slow to this. I do work fulltime and like play
 
 1. Download this repository to some location. 
 
-2. Open a Command prompts to the repository directory. In that command prompt run 'pip install .' (note the period).
+2. Open a Command prompts to the repository directory. In that command prompt run 'pip install .' (note the period). If this doesn't work, try 'python -m pip install .' 
 
 3. You should now be able to run main.py from the 'src' directory. 
 
