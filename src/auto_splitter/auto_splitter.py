@@ -12,7 +12,7 @@ import PySimpleGUI              as sg
 
 class AutoSplitter():
 
-    def __init__(self, x,y,w,h,c,window,route,livesplit_server, livesplit_port):
+    def __init__(self, x,y,w,h,c,window,route,livesplit_server, livesplit_port, load_remover_only=False):
         self.x = x
         self.y = y
         self.w = w
@@ -25,6 +25,7 @@ class AutoSplitter():
         self.route = route
         self.livesplit_server = livesplit_server
         self.livesplit_port = livesplit_port
+        self.load_remover_only = load_remover_only
 
     def array_distance(self, arr1, arr2, num):
         if (arr1[0] < arr2[0] + num) and (arr1[0] > arr2[0] - num) and (arr1[1] < arr2[1] + num) and (arr1[1] > arr2[1] - num) and (arr1[2] < arr2[2] + num) and (arr1[2] > arr2[2] - num):
@@ -97,10 +98,10 @@ class AutoSplitter():
 
         running = False
         
-        ls = LivesplitServer(self.livesplit_server, self.livesplit_port)
+        ls = LivesplitServer(self.livesplit_server, self.livesplit_port, self.load_remover_only)
         ls.connect()
 
-        route = Route(self.route)
+        route = Route(self.route) if not self.load_remover_only else Route([])
         current_location = locations[0]
 
         item_cooldown = 0
@@ -118,6 +119,12 @@ class AutoSplitter():
         self.window['-STAT1-'].update('Current Location: %s' % "Artaria", text_color='green')
         self.window['-STAT2-'].update('Items Collected: %s' % item_count, text_color='green')
         self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split())
+
+        if self.load_remover_only:
+            print("Starting in load remover only mode. Will not split! Will still start/stop GAME TIME in Livesplit.")
+
+        print("Note: Game time in the first 10 seconds may appear wrong. It will reset before the initial load finishes!")
+        watch_for_end_frame = False
 
         while self.watching:
             ret, frame = cap.read()
@@ -144,6 +151,8 @@ class AutoSplitter():
                             game_time_status = False
                             timer_stage = 4
                             sleep(10)
+                            ls.stop_game_timer()
+                            ls.reset_game_time()
                             ret, frame = cap.read()
 
                 else: 
@@ -166,7 +175,7 @@ class AutoSplitter():
                             ls.stop_game_timer()
                             game_time_status = False
                             timer_stage = 4
-                    elif route.is_complete() and self.array_distance(screen_color, end_frame_trigger, 10):
+                    elif watch_for_end_frame and self.array_distance(screen_color, end_frame_trigger, 10):
                         end_frame_2 = cap.get_average_color_from_frame(frame, location_coords)
                         print(end_frame_2)
                         if self.array_distance(end_frame_2, end_frame_loc_trigger, 10):
@@ -205,6 +214,9 @@ class AutoSplitter():
                                     timer_stage = 1
                                     current_location = loc
                                     self.window['-STAT1-'].update('Current Location: %s' % loc, text_color='green')
+                                    if self.load_remover_only and loc == "Itorash":
+                                        watch_for_end_frame = True
+
                         elif self.array_distance(loc_colors, death_screen_trigger, 4):
                             death_ocr = cap.get_text_from_frame(frame, item_coords, 80)
                             if "CONTINUE" in death_ocr:

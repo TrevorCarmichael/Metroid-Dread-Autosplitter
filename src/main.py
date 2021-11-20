@@ -29,9 +29,7 @@ except:
             "ls_server": "localhost",
             "ls_port": 16834,
             "route": [],
-            "calib_1": [],
-            "calib_2": [],
-            "calib_3": []
+            "load_remover_only": False
         }
 
 
@@ -42,6 +40,7 @@ y = int(config['y'])
 w = int(config['w'])
 h = int(config['h'])
 c = int(config['c'])
+load_remover_only = config['load_remover_only']
 
 scale = x/1920
 route = config['route']
@@ -74,7 +73,7 @@ while True:
         break
 
     if event == '-RTEBTN-':
-        route = route_layout.window(route)
+        route, load_remover_only = route_layout.window(route, load_remover_only)
         print(route)
 
     if event == '-LSBTN-':
@@ -97,7 +96,8 @@ while True:
             "c": c,
             "ls_server": livesplit_server,
             "ls_port": livesplit_port,
-            "route": route
+            "route": route,
+            "load_remover_only": load_remover_only
         }
 
         with open('data.json', 'w') as f:
@@ -129,7 +129,7 @@ while True:
 
         if auto_splitter.watching == False:
             window['-STARTBUTTON-'].update('Stop')
-            auto_splitter = AutoSplitter(x, y, w, h, c, window, route, livesplit_server, livesplit_port)
+            auto_splitter = AutoSplitter(x, y, w, h, c, window, route, livesplit_server, livesplit_port, load_remover_only)
             threading.Thread(target=auto_splitter.start_watcher, args=(), daemon=True).start()
             window['-CAMBTN-'].update(disabled=True)
             window['-RTEBTN-'].update(disabled=True)

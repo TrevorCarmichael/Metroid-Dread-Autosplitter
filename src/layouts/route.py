@@ -1,10 +1,12 @@
 import PySimpleGUI as sg
 import auto_splitter.variables as variables
 
-def window(existing_route):
+def window(existing_route, load_remove_only = False):
     route = existing_route if len(existing_route) > 0 else []
     route_text = []
     
+    load_remove_only_mode = load_remove_only
+
     for i in existing_route:
         if i[0] == "u":
             route_text.append(variables.upgrades[i[1]])
@@ -19,6 +21,7 @@ def window(existing_route):
     column_2 = [[sg.Button('Add Upgrade Trigger')],
                 [sg.Button('Add Location Change Trigger')],
                 [sg.Button('Remove selected trigger')],
+                [sg.Checkbox('Load Remover Only Mode', enable_events=True, default=load_remove_only_mode, key='-LOAD_REMOVER-')],
                 [sg.Button('Done')]]
 
     column_3 = [[sg.Text("Current Route")],
@@ -34,7 +37,7 @@ def window(existing_route):
         event, values = window.read()
 
         if (event in (sg.WIN_CLOSED, "Quit")):
-            return route
+            return route, load_remove_only_mode
             break
 
         if event == "Add Upgrade Trigger":
@@ -66,7 +69,11 @@ def window(existing_route):
 
         if event == "Done":
             window.close()
-            return route
+            return route, load_remove_only_mode
+
+        if event == "-LOAD_REMOVER-":
+            load_remove_only_mode = not load_remove_only_mode
+            window['-LOAD_REMOVER-'].update(load_remove_only_mode)
 
     window.close()
-    return route
+    return route, load_remove_only_mode

@@ -1,10 +1,11 @@
 import socket
 
 class LivesplitServer():
-    def __init__(self, server, port):
+    def __init__(self, server, port, load_remover_only = False):
         self.server = server
         self.port = port
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.load_remover_only = load_remover_only
         
     def connect(self):
         self.s.connect((self.server, self.port))
@@ -27,15 +28,19 @@ class LivesplitServer():
         self.port = port
 
     def send_split(self):
-        self.s.send(b"split\r\n")
+        if not self.load_remover_only:
+            self.s.send(b"split\r\n")
 
     def start_timer(self):
-        self.s.send(b"initgametime\r\n")
-        self.s.send(b"starttimer\r\n")
-        self.stop_game_timer()
-        self.s.send(b"setgametime 0\r\n")
+        if not self.load_remover_only:
+            self.s.send(b"initgametime\r\n")
+            self.s.send(b"starttimer\r\n")
+        #self.stop_game_timer()
+        #self.s.send(b"setgametime 0\r\n")
         
-    
+    def reset_game_time(self): 
+        self.s.send(b"setgametime 0\r\n")
+
     def start_game_timer(self):
         print("Unpausing game timer at %s" % (self.get_current_time()))
         self.s.send(b"unpausegametime\r\n")
