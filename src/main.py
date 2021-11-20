@@ -1,6 +1,5 @@
 import PySimpleGUI as sg
 import cv2
-import ui_layouts
 import layouts.camera as camera_layout
 import layouts.livesplit as livesplit_layout
 import layouts.route as route_layout
