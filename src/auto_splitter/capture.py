@@ -5,10 +5,8 @@ import numpy as np
 from PIL import Image
 
 class Capture():
-    def __init__(self, cam_number, width=None, height=None):
-        self.cap = cv2.VideoCapture(cam_number)
-        #self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        #self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    def __init__(self, cam_number, width=None, height=None, api=cv2.CAP_ANY):
+        self.cap = cv2.VideoCapture(cam_number, apiPreference=api)
         self.width = 1920
         self.height = 1080
 
@@ -20,7 +18,7 @@ class Capture():
 
     def read(self):
         ret, frame = self.cap.read()
-        frame = cv2.resize(frame, (self.width, self.height))
+        frame = cv2.resize(frame, (1920, 1080))
         return ret, frame
 
     def get_width(self):
@@ -58,6 +56,13 @@ class Capture():
 
             return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
+    @staticmethod
+    def draw_capture_zones_on_frame(frame, *args):
+        for i in args:
+            cv2.rectangle(frame, (i.x, i.y),(i.x2, i.y2),(0,255,0))
+
+        return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
     def get_average_color(self, zone):
         ret, frame = self.read()
         if ret: 
@@ -72,6 +77,7 @@ class Capture():
         return [round(average[0]), round(average[1]), round(average[2])]
 
     def close(self):
+        #print("Releasing camera currently disabled...")
         print('Releasing...')
         try: 
             self.cap.release()

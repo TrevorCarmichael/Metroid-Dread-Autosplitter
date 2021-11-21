@@ -8,7 +8,7 @@ from auto_splitter.coordinates  import Coordinates
 from auto_splitter.route        import Route
 from auto_splitter.livesplit    import LivesplitServer
 import auto_splitter.variables  as variables
-import PySimpleGUI              as sg
+#import PySimpleGUI              as sg
 
 class AutoSplitter():
 
@@ -40,7 +40,7 @@ class AutoSplitter():
             return False
 
     def average_colors(self, frame, args):
-        total = [0,0,0]
+        total = [0,0,0]        
         for arg in args:
             arg_color = Capture.get_average_color_from_frame(frame, arg)
             total[0] += arg_color[0]
@@ -50,9 +50,17 @@ class AutoSplitter():
 
     def stop_watcher(self): 
         self.watching = False
-        
+        print('Set stop flag...')
+    
+    #def update_window(self, window, text): 
+
     def start_watcher(self):
         self.watching = True
+
+        update_window = lambda x, y: self.window[x].update(y) if self.watching else False
+
+        get_items_in_text = lambda x, y: [i for i in x if i in y]
+        get_uppercase_items = lambda x: [i.upper() for i in x]
 
         x, y, w, h, c = self.x, self.y, self.w, self.h, self.c
 
@@ -134,10 +142,6 @@ class AutoSplitter():
 
             if ret:
                 avg = cap.get_average_color_from_frame(frame, whole_screen_trigger)
-                #avg2 = cap.get_average_color_from_frame(frame, location_coords)
-                #avg3 = cap.get_average_color_from_frame(frame, loading_symbol)
-                
-                #print("%s : %s : %s" % (avg, avg2, avg3))
 
                 if not running: 
                     averages = [
@@ -146,9 +150,10 @@ class AutoSplitter():
                         cap.get_average_color_from_frame(frame, menu_triggers[2])
                     ]
                     if self.array_distance(averages[1], menu_trigger_values[1], self.trigger_distance) and self.array_distance(averages[2], menu_trigger_values[2], self.trigger_distance):
-                        self.window['-STAT4-'].update('Detecting: File menu')
+                        update_window('-STAT4-', 'Detecting: File menu')
                         if averages[0][0] > menu_trigger_values[0][0] + 15:
                             print("Detected file start! Starting RTA timer...")
+                            update_window('-STAT4-', 'Starting run...')
                             ls.start_timer()
                             running = True
                             game_time_status = False
@@ -157,13 +162,15 @@ class AutoSplitter():
                             ls.stop_game_timer()
                             ls.reset_game_time()
                             ret, frame = cap.read()
+                    else:
+                        update_window('-STAT4-', 'Detecting: ???')
+                        #self.window['-STAT4-'].update('Detecting: ???')
 
                 else: 
                     screen_color = cap.get_average_color_from_frame(frame, whole_screen_trigger)
-                    #print(screen_color)
 
                     if self.lessthan(screen_color, 10):
-                        self.window['-STAT4-'].update('Detecting: Black Screen')
+                        update_window('-STAT4-', 'Detecting: Black Screen')
                         if timer_stage == 0:
                             loading_colors = cap.get_average_color_from_frame(frame, loading_symbol)
                             if self.array_distance(loading_colors, loading_symbol_trigger, 4):
@@ -201,71 +208,65 @@ class AutoSplitter():
                         
                         ## Watch for location trigger
                         if self.array_distance(loc_colors, location_trigger_value, self.trigger_distance) and timer_stage == 0:
-                            self.window['-STAT4-'].update('Detecting: Map Screen')
+                            update_window('-STAT4-', 'Detecting: Map Screen')
                             location_ocr = cap.get_text_from_frame(frame, location_coords, 40)
                             current_split = route.get_current_split()
+                            not_current = lambda x, y: [i for i in y if i.upper() != x.upper()]
+                            for loc in not_current(current_location, get_items_in_text(get_uppercase_items(locations), location_ocr)):
 
-                            for loc in locations:
-                                if loc.upper() in location_ocr and loc != current_location:
+                                ##If current split is a Location change
+                                if current_split[0] == "l":
+                                    split_location_before   = current_split[1]
+                                    split_location_after    = current_split[2]
 
-                                    ##If current split is a Location change
-                                    if current_split[0] == "l":
-                                        split_location_before   = current_split[1]
-                                        split_location_after    = current_split[2]
+                                    if current_location.lower() == locations[split_location_before].lower() and loc.lower() == locations[split_location_after].lower():
+                                        print("%s to %s split found at %s" % (locations[split_location_before], locations[split_location_after], ls.get_current_time()))
+                                        ls.send_split()
+                                        route.progress_route()
+                                        update_window('-STAT3-', 'Next Split: %s' % route.print_current_split())
 
-                                        if current_location == locations[split_location_before] and loc == locations[split_location_after]:
-                                            print("%s to %s split found at %s" % (locations[split_location_before], locations[split_location_after], ls.get_current_time()))
-                                            ls.send_split()
-                                            route.progress_route()
-                                            self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split(), text_color='green')
-                                    else:
-                                        print("Transporting from %s to %s at %s" % (current_location, loc, ls.get_current_time()))
+                                print("Transporting from %s to %s at %s" % (current_location, loc, ls.get_current_time()))
+                                timer_stage = 1
+                                current_location = loc
+                                update_window('-STAT1-', 'Current Location: %s' % loc)
 
-                                    timer_stage = 1
-                                    current_location = loc
-                                    self.window['-STAT1-'].update('Current Location: %s' % loc, text_color='green')
-
-                                    if self.load_remover_only and loc == "Itorash":
-                                        watch_for_end_frame = True
+                                if self.load_remover_only and loc == "Itorash":
+                                    watch_for_end_frame = True
 
                         ## Watch for Death screen
-                        elif self.array_distance(loc_colors, death_screen_trigger, 4) and timer_stage == 0:
-                            death_ocr = cap.get_text_from_frame(frame, item_coords, 80)
-                            if "CONTINUE" in death_ocr:
-                                timer_stage = 6
+                        elif self.array_distance(loc_colors, death_screen_trigger, 4) and timer_stage == 0 and "CONTINUE" in cap.get_text_from_frame(frame, item_coords, 80):
+                            timer_stage = 6
 
                         ## Watch for the Item/Upgrade window
                         elif self.array_distance(item_colors, item_trigger_value, self.trigger_distance) and timer_stage == 0:
-
-                            self.window['-STAT4-'].update('Detecting: Upgrade/Item Window')
+                            update_window('-STAT4-', 'Detecting: Upgrade/Item Window')
                             upgrade_ocr = cap.get_text_from_frame(frame, item_coords, 100)
                             if current_split[0] == "u" and upgrades[current_split[1]] in upgrade_ocr:
                                 upg = upgrades[current_split[1]]
                                 print("%s split found at %s" % (upg, ls.get_current_time()))
                                 ls.send_split()
                                 route.progress_route()
-                                self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split())
+                                update_window('-STAT3-', 'Next Split: %s' % route.print_current_split())
                                 upgrade_cooldown = 10
 
                             elif item_cooldown <= 0 or upgrade_cooldown <= 0:
                                 if item_cooldown <= 0:
-                                    for item in items:
-                                        if item in upgrade_ocr:
-                                            print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
-                                            item_cooldown = 10
-                                            item_count += 1
-                                            self.window['-STAT2-'].update('Items Collected: %s' % item_count, text_color='green')
+                                    for item in get_items_in_text(items, upgrade_ocr):
+                                        print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
+                                        item_cooldown = 10
+                                        item_count += 1
+                                        update_window('-STAT2-', 'Items Collected: %s' % item_count)
+
                                 if upgrade_cooldown <= 0:
-                                    for upg in upgrades:
-                                        if upg in upgrade_ocr:
-                                            print("Found %s at %s" % (upg, ls.get_current_time()))
-                                            upgrade_cooldown = 10
+                                    for upg in get_items_in_text(upgrades, upgrade_ocr):
+                                        print("Found %s at %s" % (upg, ls.get_current_time()))
+                                        upgrade_cooldown = 10
 
                         ## No other watch conditions are active                        
                         else: 
-                            self.window['-STAT4-'].update('Game playing...')
+                            update_window('-STAT4-', 'Game playing...')
                             
-                        self.window['-STAT6-'].update('Route Complete: %s, Timer_stage: %s' % (route.is_complete(), timer_stage))
+                        update_window('-STAT6-', 'Route Complete: %s, Timer_stage: %s' % (route.is_complete(), timer_stage))
 
                         #TIMEKEEPING LOGIC BELOW
                         end_time = time.time()
@@ -288,5 +289,7 @@ class AutoSplitter():
                         if upgrade_cooldown > 0:
                             upgrade_cooldown -= diff
 
-                        self.window['-STAT5-'].update('Processing %s FPS' % round(1 / diff))
+                        update_window('-STAT5-','Processing %s FPS' % round(1 / diff))
                         last_time = end_time
+
+        print("Stopping thread?")
