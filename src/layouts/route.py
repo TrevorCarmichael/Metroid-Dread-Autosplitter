@@ -1,31 +1,65 @@
 import PySimpleGUI as sg
 import auto_splitter.variables as variables
+from time import sleep
+import json
+def read_routes_from_file():
+    try: 
+        with open('routes.json', 'r') as f:
+            config = json.load(f)
+    except:
+        config = {
+            'routes': [
+                ['Default', []]
+                ]
+        }
 
-def window(existing_route, load_remove_only = False):
-    route = existing_route if len(existing_route) > 0 else []
+    return config['routes']
+
+def save_routes_to_file(routes):
+    routes = {
+        "routes": routes
+    }
+
+    with open('routes.json', 'w') as f:
+            json.dump(routes,f)
+
+def window(load_remove_only = False):
+    get_names = lambda x: [i[0] for i in x]
+
+    routes_list = read_routes_from_file()
+    get_selected_index = lambda x: routes_list.index(x)
+    route_names = get_names(routes_list) 
+
+    selected_route_index = 0
+
+    #print(routes_list)
+
+    route = routes_list[0][1]
     route_text = []
     
     load_remove_only_mode = load_remove_only
 
-    for i in existing_route:
+    print(route)
+    for i in route:
         if i[0] == "u":
             route_text.append(variables.upgrades[i[1]])
         elif i[0] == "l":
             route_text.append("%s to %s" % (variables.locations[i[1]], variables.locations[i[2]]))
 
-    column_1 = [[sg.Text('Select an upgrade trigger:')],
+    column_1 = [[sg.InputCombo(route_names, size=(16,1), key="-ROUTE_NAME-", default_value=route_names[0], readonly=True, enable_events=True)],
+                [sg.T('Select an upgrade trigger:')],
                 [sg.Listbox(values=variables.upgrades, key='-UPGRADES-', size=(20, 10), enable_events=True)],
-                [sg.Text('Before location -> Destination:')],
+                [sg.T('Before location -> Destination:')],
                 [sg.Listbox(values=variables.locations, key='-LOCBEFORE-', size=(10, 10), no_scrollbar=True), sg.Listbox(values=variables.locations, key='-LOCAFTER-', enable_events=True, size=(10, 10), no_scrollbar=True)]]
     
-    column_2 = [[sg.Button('Add Upgrade Trigger')],
-                [sg.Button('Add Location Change Trigger')],
-                [sg.Button('Remove selected trigger')],
+    column_2 = [[sg.B('Add Upgrade Trigger')],
+                [sg.B('Add Location Change Trigger')],
+                [sg.B('Remove selected trigger')],
                 [sg.Checkbox('Load Remover Only Mode', enable_events=True, default=load_remove_only_mode, key='-LOAD_REMOVER-')],
-                [sg.Button('Done')]]
+                [sg.B('Done'), sg.B('Save Route')]]
 
-    column_3 = [[sg.Button('↑')],
-                [sg.Button('↓')]]
+    column_3 = [[sg.B('↑')],
+                [sg.B('↓')]]
 
     column_4 = [[sg.Text("Current Route")],
         [sg.Listbox(values=route_text, key='-ROUTE-', size=(40, 30))]]
@@ -109,10 +143,43 @@ def window(existing_route, load_remove_only = False):
         if event == "Done":
             window.close()
             return route, load_remove_only_mode
+        
+        if event in ("-ROUTE_NAME-", "-ROUTE_COMBO-"):
+
+            print(values['-ROUTE_NAME-'])
+            selected_route_index = route_names.index(values['-ROUTE_NAME-'])
+
+            route = routes_list[selected_route_index][1]
+
+            route_text = []
+            
+
+            for i in route:
+                if i[0] == "u":
+                    route_text.append(variables.upgrades[i[1]])
+                elif i[0] == "l":
+                    route_text.append("%s to %s" % (variables.locations[i[1]], variables.locations[i[2]]))
+            
+            window['-ROUTE-'].update(values=route_text)
 
         if event == "-LOAD_REMOVER-":
             load_remove_only_mode = not load_remove_only_mode
             window['-LOAD_REMOVER-'].update(load_remove_only_mode)
+
+        if event == "Save Route":
+            event, values = sg.Window('Save Route',
+                  [[sg.T('Enter name of route'), sg.In(key='-NAME-')],
+                  [sg.B('OK')]]).read(close=True)
+
+            route_name = values['-NAME-']
+            print(route_name)
+
+            routes_list.append([route_name, route])
+            save_routes_to_file(routes_list)
+            routes = read_routes_from_file()
+            route_names = get_names(routes)
+            print(route_names)
+            window.Element('-ROUTE_NAME-').Update(values=route_names)
 
     window.close()
     return route, load_remove_only_mode
