@@ -59,8 +59,8 @@ class AutoSplitter():
         scale = w/1920
         item_coords, location_coords, menu_coords = variables.get_coordinates(x,y,w/1920)
         item_triggers = [
-            Coordinates(420, 420, 520, 650, x, y, scale),
-            Coordinates(1390, 420, 1490, 650, x, y, scale)
+            Coordinates(420, 420, 620, 650, x, y, scale),
+            Coordinates(1290, 420, 1490, 650, x, y, scale)
         ]
 
         item_trigger_value = [2, 12, 23]
@@ -189,72 +189,81 @@ class AutoSplitter():
                     else: 
                         current_split = route.get_current_split()
                         loc_colors = self.average_colors(frame, location_triggers)
+                        item_colors = self.average_colors(frame, item_triggers)
 
+                        ## Timer pause/unpause stages
                         if timer_stage == 2: 
                             timer_stage = 3
                         elif timer_stage == 4:
                             ls.start_game_timer()
                             game_time_status = True
                             timer_stage = 0
-
-                        if current_split[0] == "l":
-                            split_location_before   = current_split[1]
-                            split_location_after    = current_split[2]
-
-                        if self.array_distance(loc_colors, location_trigger_value, self.trigger_distance):
+                        
+                        ## Watch for location trigger
+                        if self.array_distance(loc_colors, location_trigger_value, self.trigger_distance) and timer_stage == 0:
+                            self.window['-STAT4-'].update('Detecting: Map Screen')
                             location_ocr = cap.get_text_from_frame(frame, location_coords, 40)
-                            self.window['-STAT4-'].update('Detecting: Map Screen?')
                             current_split = route.get_current_split()
+
                             for loc in locations:
                                 if loc.upper() in location_ocr and loc != current_location:
-                                    if current_split[0] == "l" and current_location == locations[split_location_before] and loc == locations[split_location_after]:
-                                        print("%s to %s split found at %s" % (locations[split_location_before], locations[split_location_after], ls.get_current_time()))
-                                        ls.send_split()
-                                        route.progress_route()
-                                        self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split(), text_color='green')
-                                    
+
+                                    ##If current split is a Location change
+                                    if current_split[0] == "l":
+                                        split_location_before   = current_split[1]
+                                        split_location_after    = current_split[2]
+
+                                        if current_location == locations[split_location_before] and loc == locations[split_location_after]:
+                                            print("%s to %s split found at %s" % (locations[split_location_before], locations[split_location_after], ls.get_current_time()))
+                                            ls.send_split()
+                                            route.progress_route()
+                                            self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split(), text_color='green')
+                                    else:
+                                        print("Transporting from %s to %s at %s" % (current_location, loc, ls.get_current_time()))
+
                                     timer_stage = 1
                                     current_location = loc
                                     self.window['-STAT1-'].update('Current Location: %s' % loc, text_color='green')
+
                                     if self.load_remover_only and loc == "Itorash":
                                         watch_for_end_frame = True
 
-                        elif self.array_distance(loc_colors, death_screen_trigger, 4):
+                        ## Watch for Death screen
+                        elif self.array_distance(loc_colors, death_screen_trigger, 4) and timer_stage == 0:
                             death_ocr = cap.get_text_from_frame(frame, item_coords, 80)
                             if "CONTINUE" in death_ocr:
                                 timer_stage = 6
+
+                        ## Watch for the Item/Upgrade window
+                        elif self.array_distance(item_colors, item_trigger_value, self.trigger_distance) and timer_stage == 0:
+
+                            self.window['-STAT4-'].update('Detecting: Upgrade/Item Window')
+                            upgrade_ocr = cap.get_text_from_frame(frame, item_coords, 100)
+                            if current_split[0] == "u" and upgrades[current_split[1]] in upgrade_ocr:
+                                upg = upgrades[current_split[1]]
+                                print("%s split found at %s" % (upg, ls.get_current_time()))
+                                ls.send_split()
+                                route.progress_route()
+                                self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split())
+                                upgrade_cooldown = 10
+
+                            elif item_cooldown <= 0 or upgrade_cooldown <= 0:
+                                if item_cooldown <= 0:
+                                    for item in items:
+                                        if item in upgrade_ocr:
+                                            print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
+                                            item_cooldown = 10
+                                            item_count += 1
+                                            self.window['-STAT2-'].update('Items Collected: %s' % item_count, text_color='green')
+                                if upgrade_cooldown <= 0:
+                                    for upg in upgrades:
+                                        if upg in upgrade_ocr:
+                                            print("Found %s at %s" % (upg, ls.get_current_time()))
+                                            upgrade_cooldown = 10
+
+                        ## No other watch conditions are active                        
                         else: 
-                            item_colors = self.average_colors(frame, item_triggers)
-                            if self.array_distance(item_colors, item_trigger_value, self.trigger_distance):
-
-                                self.window['-STAT4-'].update('Detecting: Upgrade/Item Window?')
-
-                                upgrade_ocr = cap.get_text_from_frame(frame, item_coords, 120)
-
-                                if current_split[0] == "u" and upgrades[current_split[1]] in upgrade_ocr:
-                                    upg = upgrades[current_split[1]]
-                                    print("%s split found at %s" % (upg, ls.get_current_time()))
-                                    ls.send_split()
-                                    route.progress_route()
-                                    self.window['-STAT3-'].update('Next Split: %s' % route.print_current_split())
-
-                                else:
-                                    if item_cooldown <= 0:
-                                        for item in items:
-                                            if item in upgrade_ocr:
-                                                print("Collected %s in %s at %s" % (item, current_location, ls.get_current_time()))
-                                                item_cooldown = 10
-                                                item_count += 1
-                                                self.window['-STAT2-'].update('Items Collected: %s' % item_count, text_color='green')
-                                    if upgrade_cooldown <= 0:
-                                        for upg in upgrades:
-                                            if upg in upgrade_ocr:
-                                                print("Found %s at %s" % (upg, ls.get_current_time()))
-                                                upgrade_cooldown = 10
-
-
-                            else: 
-                                self.window['-STAT4-'].update('Game playing...')
+                            self.window['-STAT4-'].update('Game playing...')
                             
                         self.window['-STAT6-'].update('Route Complete: %s, Timer_stage: %s' % (route.is_complete(), timer_stage))
 

@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import cv2
-import layouts.camera as camera_layout
+#import layouts.camera as camera_layout
 import layouts.livesplit as livesplit_layout
 import layouts.route as route_layout
 import layouts.calibrate as calibrate_layout
@@ -12,6 +12,7 @@ from auto_splitter.capture import Capture
 from auto_splitter.coordinates import Coordinates
 from auto_splitter.route import Route
 from auto_splitter.auto_splitter import AutoSplitter
+import layouts.camera_test as camera_layout
 import auto_splitter.variables as variables
 from time import sleep
 
@@ -114,6 +115,7 @@ while True:
             window['-LSTEXT-'].update('Couldn\'t connect to Livesplit', text_color='red')
             
         cap = Capture(c, 1920, 1080)
+
         try:
             ret, frame = cap.read()
             if ret:
@@ -135,6 +137,7 @@ while True:
             window['-LSBTN-'].update(disabled=True)
             window['-TSTBTN-'].update(disabled=True)
             #window['-CALBTN-'].update(disabled=True)
+            
         elif auto_splitter.watching == True:
             auto_splitter.stop_watcher()
             sleep(1)
