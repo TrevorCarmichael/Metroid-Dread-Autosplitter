@@ -1,6 +1,5 @@
 import PySimpleGUI as sg
 import cv2
-#import layouts.camera as camera_layout
 import layouts.livesplit as livesplit_layout
 import layouts.route as route_layout
 import layouts.calibrate as calibrate_layout
@@ -73,7 +72,7 @@ while True:
         break
 
     if event == '-RTEBTN-':
-        route, load_remover_only = route_layout.window(route, load_remover_only)
+        route, load_remover_only = route_layout.window(load_remover_only)
         print(route)
 
     if event == '-LSBTN-':
