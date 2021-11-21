@@ -24,10 +24,13 @@ def window(existing_route, load_remove_only = False):
                 [sg.Checkbox('Load Remover Only Mode', enable_events=True, default=load_remove_only_mode, key='-LOAD_REMOVER-')],
                 [sg.Button('Done')]]
 
-    column_3 = [[sg.Text("Current Route")],
-        [sg.Listbox(values=route_text, key='-ROUTE-', size=(40, 20))]]
+    column_3 = [[sg.Button('↑')],
+                [sg.Button('↓')]]
 
-    route_layout = [[sg.Column(column_1), sg.Column(column_2, element_justification='c'), sg.Column(column_3)]]
+    column_4 = [[sg.Text("Current Route")],
+        [sg.Listbox(values=route_text, key='-ROUTE-', size=(40, 30))]]
+
+    route_layout = [[sg.Column(column_1), sg.Column(column_2, element_justification='c'), sg.Column(column_3), sg.Column(column_4)]]
 
     window = sg.Window('Route Config', route_layout)
 
@@ -50,12 +53,13 @@ def window(existing_route, load_remove_only = False):
                     window['-ROUTE-'].update(values=route_text)
 
         if event == "Remove selected trigger":
-            if len(values['-ROUTE-']) > 0: 
-                selection = values['-ROUTE-'][0]
-                route_index = route_text.index(selection)
-                route_text.pop(route_index)
-                route.pop(route_index)
-                window['-ROUTE-'].update(values=route_text)
+            selected = window['-ROUTE-'].GetIndexes()[0] if len(window['-ROUTE-'].GetIndexes()) > 0 else 0
+
+            if len(route) > 0: 
+                route_text.pop(selected)
+                route.pop(selected)
+
+            window['-ROUTE-'].update(values=route_text)
 
         if event == "Add Location Change Trigger":
             if len(values['-LOCBEFORE-']) > 0 and len(values['-LOCAFTER-']) > 0:
@@ -66,6 +70,41 @@ def window(existing_route, load_remove_only = False):
                 route.append(["l", before_index, after_index])
                 route_text.append("%s to %s" % (before, after))
                 window['-ROUTE-'].update(values=route_text)
+
+        if event == "↑":
+            selected = window['-ROUTE-'].GetIndexes()[0] if len(window['-ROUTE-'].GetIndexes()) > 0 else 0
+            if selected > 0: 
+                temp = route[selected-1]
+                route[selected-1] = route[selected]
+                route[selected] = temp
+
+                route_text = []
+                for i in route:
+                    if i[0] == "u":
+                        route_text.append(variables.upgrades[i[1]])
+                    elif i[0] == "l":
+                        route_text.append("%s to %s" % (variables.locations[i[1]], variables.locations[i[2]]))
+                window['-ROUTE-'].update(values=route_text)
+                window['-ROUTE-'].update(scroll_to_index=selected-1)
+                window['-ROUTE-'].update(set_to_index=selected-1)
+
+        if event == "↓":
+            selected = window['-ROUTE-'].GetIndexes()[0] if len(window['-ROUTE-'].GetIndexes()) > 0 else len(route)
+
+            if selected < len(route) - 1: 
+                temp = route[selected+1]
+                route[selected+1] = route[selected]
+                route[selected] = temp
+
+                route_text = []
+                for i in route:
+                    if i[0] == "u":
+                        route_text.append(variables.upgrades[i[1]])
+                    elif i[0] == "l":
+                        route_text.append("%s to %s" % (variables.locations[i[1]], variables.locations[i[2]]))
+                window['-ROUTE-'].update(values=route_text)
+                window['-ROUTE-'].update(scroll_to_index=selected+1)
+                window['-ROUTE-'].update(set_to_index=selected+1)
 
         if event == "Done":
             window.close()
