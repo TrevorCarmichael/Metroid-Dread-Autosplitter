@@ -27,7 +27,7 @@ def list_ports():
                 available_ports.append(current_port)
                 names.append("%s (%s)" % (current_port, cam.getBackendName()))
             else: 
-                pring("Port %s is connected, but not reading..." % current_port)
+                print("Port %s is connected, but not reading..." % current_port)
             current_port += 1
 
     return available_ports, names
