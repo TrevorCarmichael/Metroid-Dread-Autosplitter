@@ -26,6 +26,6 @@ Please understand updates will be slow to this. I do work fulltime and like play
 
 ## Configuring 
 
-Video on this coming later...
+https://youtu.be/LtUYlbXf4HE
 
 Pls report any bugs in the issues tab or feel free to leave any feature requests. I know there's a lot to add but right now i just kind of add stuff as I need it 
