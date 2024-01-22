@@ -2,9 +2,9 @@
 
 A simple auto split program in Python. This uses OCR to read parts of the screen and determine when an upgrade or location change has happened.
 
-At the moment I can only split on these actions. I've been trying to think of methods to split in other spots but that's tricky and this was easy. 
+Primarily this was made for metroid dread speedrunning. This interfaces with LiveSplit and OBS to read the game screen and send a signal to LiveSplit when certain actions are detected.
 
-Please understand updates will be slow to this. I do work fulltime and like playing vidyagames so during the week I probably won't spend much time working on this. If you're someone who knows python then I'd recommend someone smarter than me forking this and making it better, or just make your own idk. This project was really just a 'proof of concept' I made that I guess might mature eventually. 
+Please understand updates will be slow to this. I do work fulltime and like playing videogames so during the week I probably won't spend much time working on this. This project was really just a 'proof of concept' I made to see if the idea of using OCR on the game screen was viable, and surprisingly it was! 
 
 ## Prerequisites
 
